@@ -1,0 +1,40 @@
+.main-wrapper {
+    background-color: white;
+    position: absolute;
+    width: 1974px;
+    height: 1276px;
+}
+
+.background {
+    opacity: 0;
+}
+
+.zone1 {
+    background-color: transparent;
+    transform: translate(110px, -815px);
+    position: absolute;
+}
+
+.zone2 {
+    background-color: transparent;
+    transform: translate(700px, -665px);
+    position: absolute;
+}
+
+.zone3 {
+    background-color: transparent;
+    transform: translate(705px, -1100px);
+    position: absolute;
+}
+
+.zone4 {
+    background-color: transparent;
+    transform: translate(1275px, -760px);
+    position: absolute;
+}
+
+.zone5 {
+    background-color: transparent;
+    transform: translate(1228px, -1129px);
+    position: absolute;
+}
