@@ -41,8 +41,12 @@ module.exports = [
   },
   // Images
   {
-    test: /\.(png|jpg|jpeg|gif|mp4)$/i,
-    type: 'asset/resource',
+    test: /\.(png|jpe?g|gif|mp4|mov|webm)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
   },
   // SVG
   {
