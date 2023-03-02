@@ -77,9 +77,9 @@ tracker = HandTracker(
         **tracker_args
         )
 
-renderer = HandTrackerRenderer(
-        tracker=tracker,
-        output=args.output)
+# renderer = HandTrackerRenderer(
+#         tracker=tracker,
+#         output=args.output)
 
 while True:
     # Run hand tracker on next frame
@@ -91,19 +91,19 @@ while True:
     
 
     # Draw hands
-    frame = renderer.draw(frame, hands, bag)
+    # frame = renderer.draw(frame, hands, bag)
     if hands:
         for hand in hands:
-            print(f"X:{hand.xyz[0]/10:3.0f},Y:{hand.xyz[1]/10:3.0f},Z:{hand.xyz[2]/10:3.0f}", flush=True)
+            print(f"X:{hand.xyz[0]/10:3.0f},Y:{hand.xyz[1]/10:3.0f},Z:{hand.xyz[2]/10:3.0f}")
             sys.stdout.flush()   
     
 
-    key = renderer.waitKey(delay=1)
-    if key == 27 or key == ord('q'):
-        break
+    # key = renderer.waitKey(delay=1)
+    # if key == 27 or key == ord('q'):
+    #     break
 
 
             
     
-renderer.exit()
+# renderer.exit()
 tracker.exit()

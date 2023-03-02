@@ -13,11 +13,10 @@ let { PythonShell } = PythonShellLibrary;
 let shell = new PythonShell("backend/demo.py", {
   // The '-u' tells Python to flush every time
   pythonOptions: ["-u"],
-  args: ["-f 6"],
+  args: ["-e", "-xyz"],
 });
 
 shell.on("message", function (message) {
-  console.log("message", message);
   //sending data to frontend 
   mainWindow.webContents.send("main-to-render", message);
 });
