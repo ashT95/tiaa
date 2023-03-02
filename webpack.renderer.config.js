@@ -1,6 +1,4 @@
 const rules = require('./webpack.rules');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
-
 
 rules.push({
   test: /\.css$/,

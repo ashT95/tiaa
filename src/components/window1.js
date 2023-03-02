@@ -4,7 +4,6 @@ import vid2 from "../assets/02_100.webm";
 import vid3 from "../assets/03_100.webm";
 import vid4 from "../assets/04_100.webm";
 import vid5 from "../assets/05_100.webm";
-import layout from "../assets/layout.png";
 import "./window1.css";
 import TouchZone from "./touchZone";
 
@@ -85,7 +84,7 @@ export default function Window1() {
   return (
     <div className="main-wrapper">
       <div className="background">
-        <img src={layout} alt="layout img" id="bgImg" />
+        
       </div>
       <TouchZone zone="zone1" xVal={xVal} yVal={yVal} zVal={zVal} vid={vid1} lock={lock1} playing={getZone1} />
       <TouchZone zone="zone2" xVal={xVal} yVal={yVal} zVal={zVal} vid={vid2} lock={lock2} playing={getZone2} />
