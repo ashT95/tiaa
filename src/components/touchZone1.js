@@ -4,9 +4,8 @@ import zoneData from "../zones.json";
 export default function TouchZone(props) {
   const { vid, zone, xVal, yVal, zVal, lock, playing } = props;
   const videoRef = useRef(null);
-  const [active, setActive] = useState(false);
 
-  let data = JSON.parse(JSON.stringify(zoneData));
+  let data = JSON.parse(JSON.stringify(zoneData.window1));
   let coords = Object.values(data[zone]);
   let xMin = coords[0];
   let xMax = coords[1];
@@ -25,25 +24,17 @@ export default function TouchZone(props) {
       zVal < zMax
     ) {
       if (lock === false) {
-        setActive(true);
-        console.log(zone);
-      } else {
-        setActive(false)
-      }
+        handlePlay();
+      } 
     }
 
-    if (active) {
-      handlePlay();
-    } 
 
-
-  }, [active, xVal, yVal, zVal, lock, playing]);
+  }, [xVal, yVal, zVal, lock]);
 
   const handleEnd = () => {
     videoRef.current.currentTime = 0;
     videoRef.current.pause();
     playing(false)
-    setActive(false);
   };
 
   const handlePlay = () => {

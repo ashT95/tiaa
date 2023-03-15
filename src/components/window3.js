@@ -5,10 +5,10 @@ import vid3 from "../assets/03_100.webm";
 import vid4 from "../assets/04_100.webm";
 import vid5 from "../assets/05_100.webm";
 import layout from "../assets/layout.png";
-import "./window1.css";
-import TouchZone from "./touchZone1";
+import "./window3.css";
+import TouchZone from "./touchZone3";
 
-export default function Window1() {
+export default function Window3() {
   const [xVal, setXval] = useState(null);
   const [yVal, setYval] = useState(null);
   const [zVal, setZval] = useState(null);

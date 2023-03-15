@@ -35,6 +35,22 @@ module.exports = {
                 js: './src/preload.js',
               },
             },
+            {
+              html: './src/index2.html',
+              js: './src/renderer2.js',
+              name: 'main_window2',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
+            {
+              html: './src/index3.html',
+              js: './src/renderer3.js',
+              name: 'main_window3',
+              preload: {
+                js: './src/preload.js',
+              },
+            },
           ],
         },
       },

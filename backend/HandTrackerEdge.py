@@ -151,14 +151,15 @@ class HandTracker:
             # Color camera frames are systematically transferred to the host
             self.input_type = "rgb" # OAK* internal color camera
             self.laconic = input_src == "rgb_laconic" # Camera frames are not sent to the host
-            if resolution == "full":
-                self.resolution = (1920, 1080)
-            elif resolution == "ultra":
-                self.resolution = (3840, 2160)
-            else:
-                # print(f"Error: {resolution} is not a valid resolution !")
-                sys.exit()
+            # if resolution == "full":
+            #     self.resolution = (1920, 1080)
+            # elif resolution == "ultra":
+            #     self.resolution = (3840, 2160)
+            # else:
+            #     # print(f"Error: {resolution} is not a valid resolution !")
+            #     sys.exit()
             # print("Sensor resolution:", self.resolution)
+            self.resolution = (1280, 800)
 
             if xyz:
                 # Check if the device supports stereo
@@ -246,10 +247,11 @@ class HandTracker:
         # ColorCamera
         # print("Creating Color Camera...")
         cam = pipeline.createColorCamera()
-        if self.resolution[0] == 1920:
-            cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
-        else:
-            cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
+        # if self.resolution[0] == 1920:
+        #     cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+        # else:
+        #     cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
+        cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
         cam.setBoardSocket(dai.CameraBoardSocket.RGB)
         cam.setInterleaved(False)
         cam.setIspScale(self.scale_nd[0], self.scale_nd[1])
