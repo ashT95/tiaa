@@ -1,6 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from "react-router-dom";
 import React from "react";
-import Window1 from "./components/window1";
+import Window1 from "./components/wall1/window1";
 
 export default function App() {
   return (

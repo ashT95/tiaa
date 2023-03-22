@@ -8,6 +8,7 @@ from FPS import FPS, now
 import time
 import sys
 from math import sin, cos
+from typing import List
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -127,7 +128,7 @@ class HandTracker:
         self.use_handedness_average = use_handedness_average
         self.single_hand_tolerance_thresh = single_hand_tolerance_thresh
 
-        self.device = dai.Device()
+        self.device = dai.Device() 
 
         if input_src == None or input_src == "rgb" or input_src == "rgb_laconic":
             # Note that here (in Host mode), specifying "rgb_laconic" has no effect
@@ -135,18 +136,20 @@ class HandTracker:
             self.input_type = "rgb" # OAK* internal color camera
             self.internal_fps = internal_fps 
             # print(f"Internal camera FPS set to: {self.internal_fps}")
-            if resolution == "full":
-                self.resolution = (1920, 1080)
-            elif resolution == "ultra":
-                self.resolution = (3840, 2160)
-            else:
-                print(f"Error: {resolution} is not a valid resolution !")
-                sys.exit()
+            # if resolution == "full":
+            #     self.resolution = (1920, 1080)
+            # elif resolution == "ultra":
+            #     self.resolution = (3840, 2160)
+            # else:
+            #     print(f"Error: {resolution} is not a valid resolution !")
+            #     sys.exit()
+            self.resolution = (1280, 800)
             # print("Sensor resolution:", self.resolution)
 
             if xyz:
                 # Check if the device supports stereo
                 cameras = self.device.getConnectedCameras()
+                print(cameras)
                 if dai.CameraBoardSocket.LEFT in cameras and dai.CameraBoardSocket.RIGHT in cameras:
                     self.xyz = True
                 else:
@@ -269,10 +272,11 @@ class HandTracker:
             # ColorCamera
             # print("Creating Color Camera...")
             cam = pipeline.createColorCamera()
-            if self.resolution[0] == 1920:
-                cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
-            else:
-                cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
+            # if self.resolution[0] == 1920:
+            #     cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+            # else:
+            #     cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
+            cam.setResolution(dai.ColorCameraProperties.SensorResolution.THE_800_P)
             cam.setBoardSocket(dai.CameraBoardSocket.RGB)
             cam.setInterleaved(False)
             cam.setIspScale(self.scale_nd[0], self.scale_nd[1])

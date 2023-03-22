@@ -1,0 +1,71 @@
+.main-wrapper {
+    background-color: black;
+    position: absolute;
+    width: 1920px;
+    height: 1200px;
+}
+
+.background {
+    opacity: 0.2;
+    position: absolute;
+    width: 1920px;
+    height: 1200px;
+    top: 0px;
+    padding: 0px;
+    margin:0px;
+}
+
+.zone1 {
+    position:fixed;
+    padding: 0px;
+    margin:0px;
+    width: 922px;
+    height: 922px;
+    top: 224px;
+    left: 38px;
+}
+
+.zone2 {
+    position: fixed;
+    padding: 0px;
+    margin:0px;
+    width: 730px;
+    height: 456px;
+    top: 120px;
+    left: 485px;
+}
+
+.zone3 {
+    position:fixed;
+    padding: 0px;
+    margin:0px;
+    width: 740px;
+    height: 462px;
+    top: 511px;
+    left: 675px;
+
+}
+
+.zone4 {
+    position:fixed;
+    padding: 0px;
+    margin:0px;
+    width: 740px;
+    height: 462px;
+    top: 454px;
+    left: 1068px;
+}
+
+.zone5 {
+    position:fixed;
+    padding: 0px;
+    margin:0px;
+    width: 740px;
+    height: 462px;
+    top: 162px;
+    left: 880px;
+}
+
+#coords {
+    position: absolute;
+}

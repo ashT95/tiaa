@@ -1,0 +1,141 @@
+.main-wrapper {
+  background-color: black;
+  position: absolute;
+  width: 1920px;
+  height: 1200px;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.background {
+  opacity: 0.2;
+  position: absolute;
+  width: 1920px;
+  height: 1200px;
+}
+
+.zone1,
+.border1 {
+  position: fixed;
+  top: 218px;
+  left: 35px;
+  mix-blend-mode: screen;
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.zone2,
+.border2 {
+  position: fixed;
+  top: 0px;
+  left: 314px;
+  mix-blend-mode: screen;
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.zone3,
+.border3 {
+  position: fixed;
+  top: 511px;
+  left: 675px;
+  mix-blend-mode: screen;
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.zone4,
+.border4 {
+  position: fixed;
+  top: 454px;
+  left: 1068px;
+  mix-blend-mode: screen;
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.zone5,
+.border5 {
+  position: fixed;
+  top: 155px;
+  left: 872px;
+  mix-blend-mode: screen;
+  visibility: visible;
+  opacity: 1;
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Fade-Out Effect */
+.hiddenBorder1 {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  top: 218px;
+  left: 35px;
+  mix-blend-mode: screen;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+.hiddenBorder2 {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  top: 314px;
+  left: 0px;
+  mix-blend-mode: screen;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+.hiddenBorder3 {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  top: 511px;
+  left: 675px;
+  mix-blend-mode: screen;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+.hiddenBorder4 {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  top: 454px;
+  left: 1068px;
+  mix-blend-mode: screen;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+.hiddenBorder5 {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  top: 155px;
+  left: 872px;
+  mix-blend-mode: screen;
+  transition: visibility 0s 0.5s, opacity 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

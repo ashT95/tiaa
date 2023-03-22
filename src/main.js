@@ -21,9 +21,8 @@ let shell = new PythonShell("backend/demo.py", {
 shell.on("message", function (message) {
   //sending data to frontend 
   mainWindow.webContents.send("main-to-render", message);
-  mainWindow2.webContents.send("main-to-render", message);
-  mainWindow3.webContents.send("main-to-render", message);
 });
+
 
 const createWindow = () => {
   // Create the browser window.
@@ -66,28 +65,26 @@ const createWindow = () => {
     mainWindow.focus();
   });
 
-  mainWindow2.once("ready-to-show", () => {
-    mainWindow2.show();
-    mainWindow2.focus();
-  });
-
-  mainWindow3.once("ready-to-show", () => {
-    mainWindow3.show();
-    mainWindow3.focus();
-  });
-
+  // mainWindow2.once("ready-to-show", () => {
+  //   mainWindow2.show();
+  //   mainWindow2.focus();
+  // });
+  
+  // mainWindow3.once("ready-to-show", () => {
+  //   mainWindow3.show();
+  //   mainWindow3.focus();
+  // });
   //ipcMain.handle("ping", () => "pong");
 
   //Menu.setApplicationMenu(null);
   //mainWindow.setFullScreen(true);
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow2.loadURL(MAIN_WINDOW2_WEBPACK_ENTRY);
-  mainWindow3.loadURL(MAIN_WINDOW3_WEBPACK_ENTRY);
-
+  // mainWindow2.loadURL(MAIN_WINDOW2_WEBPACK_ENTRY);
+  // mainWindow3.loadURL(MAIN_WINDOW3_WEBPACK_ENTRY);
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-  mainWindow2.webContents.openDevTools();
-  mainWindow3.webContents.openDevTools();
+  // mainWindow2.webContents.openDevTools();
+  // mainWindow3.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished

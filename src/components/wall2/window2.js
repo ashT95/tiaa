@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import vid1 from "../assets/01_100.webm";
-import vid2 from "../assets/02_100.webm";
-import vid3 from "../assets/03_100.webm";
-import vid4 from "../assets/04_100.webm";
-import vid5 from "../assets/05_100.webm";
-import layout from "../assets/layout.png";
+import { ReactDOM } from "react";
+import vid1 from "../../assets/01_Andrew Carnegie.mp4";
+import vid2 from "../../assets/02_Famous Annuitants.mp4";
+import vid3 from "../../assets/03_Real Estate.mp4";
+import vid4 from "../../assets/04_Land Conservation.mp4";
+import vid5 from "../../assets/05_Not Just Teachers.mp4";
+import layout from "../../assets/layout.jpg";
 import "./window2.css";
 import TouchZone from "./touchZone2";
 
@@ -83,56 +84,72 @@ export default function Window2() {
     }
   }, [active]);
 
+  // let coords = document.getElementById("coords")
+
+  // document.onclick = function(e) { // shows click coordinates
+  //   coords.innerHTML = e.clientX + ':' + e.clientY;
+  // };
+
   return (
     <div className="main-wrapper">
-      <div className="background">
-        <img src={layout} alt="layout img" id="bgImg" />
+      <div className="zone1">
+        <TouchZone
+          zone="zone1"
+          xVal={xVal}
+          yVal={yVal}
+          zVal={zVal}
+          vid={vid1}
+          lock={lock1}
+          playing={getZone1}
+        />
       </div>
-      <TouchZone
-        zone="zone1"
-        xVal={xVal}
-        yVal={yVal}
-        zVal={zVal}
-        vid={vid1}
-        lock={lock1}
-        playing={getZone1}
-      />
-      <TouchZone
-        zone="zone2"
-        xVal={xVal}
-        yVal={yVal}
-        zVal={zVal}
-        vid={vid2}
-        lock={lock2}
-        playing={getZone2}
-      />
-      <TouchZone
-        zone="zone3"
-        xVal={xVal}
-        yVal={yVal}
-        zVal={zVal}
-        vid={vid3}
-        lock={lock3}
-        playing={getZone3}
-      />
-      <TouchZone
-        zone="zone4"
-        xVal={xVal}
-        yVal={yVal}
-        zVal={zVal}
-        vid={vid4}
-        lock={lock4}
-        playing={getZone4}
-      />
-      <TouchZone
-        zone="zone5"
-        xVal={xVal}
-        yVal={yVal}
-        zVal={zVal}
-        vid={vid5}
-        lock={lock5}
-        playing={getZone5}
-      />
+      <div className="zone4">
+        <TouchZone
+          zone="zone4"
+          xVal={xVal}
+          yVal={yVal}
+          zVal={zVal}
+          vid={vid4}
+          lock={lock4}
+          playing={getZone4}
+        />
+      </div>
+      <div className="zone5">
+        <TouchZone
+          zone="zone5"
+          xVal={xVal}
+          yVal={yVal}
+          zVal={zVal}
+          vid={vid5}
+          lock={lock5}
+          playing={getZone5}
+        />
+      </div>
+
+      <div className="zone3">
+        <TouchZone
+          zone="zone3"
+          xVal={xVal}
+          yVal={yVal}
+          zVal={zVal}
+          vid={vid3}
+          lock={lock3}
+          playing={getZone3}
+        />
+      </div>
+
+      <div className="zone2">
+        <TouchZone
+          zone="zone2"
+          xVal={xVal}
+          yVal={yVal}
+          zVal={zVal}
+          vid={vid2}
+          lock={lock2}
+          playing={getZone2}
+        />
+      </div>
+      <img src={layout} className="background" />
     </div>
   );
 }

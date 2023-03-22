@@ -4,8 +4,6 @@
 from HandTrackerRenderer import HandTrackerRenderer
 import argparse
 import sys
-import time
-import os
 import numpy as np
 
 parser = argparse.ArgumentParser()
@@ -88,7 +86,6 @@ while True:
     # Currently 'bag' contains meaningful information only when Body Pre Focusing is used
     frame, hands, bag = tracker.next_frame()
     if frame is None: break
-    
 
     # Draw hands
     frame = renderer.draw(frame, hands, bag)

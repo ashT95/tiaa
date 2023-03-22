@@ -11,6 +11,7 @@ import time
 import sys
 from string import Template
 import marshal
+from typing import List
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -378,7 +379,8 @@ class HandTracker:
         pre_lm_manip.out.link(lm_nn.input)
         lm_nn.out.link(manager_script.inputs['from_lm_nn'])
             
-        # print("Pipeline created.")
+            
+        print("Pipeline created.")
         return pipeline        
     
     def build_manager_script(self):

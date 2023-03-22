@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import zoneData from "../zones.json";
+import zoneData from "../../zones.json";
 
 export default function TouchZone(props) {
   const { vid, zone, xVal, yVal, zVal, lock, playing } = props;
   const videoRef = useRef(null);
 
-  let data = JSON.parse(JSON.stringify(zoneData.window1));
+  let data = JSON.parse(JSON.stringify(zoneData.window2));
   let coords = Object.values(data[zone]);
   let xMin = coords[0];
   let xMax = coords[1];
@@ -24,10 +24,10 @@ export default function TouchZone(props) {
       zVal < zMax
     ) {
       if (lock === false) {
-        handlePlay();
+        
       } 
     }
-
+    handlePlay();
 
   }, [xVal, yVal, zVal, lock]);
 
@@ -49,7 +49,7 @@ export default function TouchZone(props) {
         id={vid}
         ref={videoRef}
         muted={false}
-        loop={false}
+        loop={true}
         preload="auto"
         onEnded={handleEnd}
       />
