@@ -91,7 +91,9 @@ while True:
     frame = renderer.draw(frame, hands, bag)
     if hands:
         for hand in hands:
-            print(f"X:{hand.xyz[0]/10:3.0f},Y:{hand.xyz[1]/10:3.0f},Z:{hand.xyz[2]/10:3.0f}")
+            print(f"X:{hand.xyz[0]/10:3.0f},Y:{hand.xyz[1]/10:3.0f},Z:{hand.xyz[2]/10:3.0f}, {hand.pd_score}")
+
+            
             sys.stdout.flush()   
     
 

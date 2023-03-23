@@ -27,11 +27,12 @@ export default function TouchZone(props) {
       zVal < zMax
     ) {
       if (lock === false) {
+        handlePlay();
       }
-      console.log(zone)
+
     }
-    handleBorder();
-    handlePlay();
+   // handleBorder();
+    
   }, [xVal, yVal, zVal, lock]);
 
   const handleEnd = () => {
@@ -66,6 +67,7 @@ export default function TouchZone(props) {
           muted={false}
           loop={true}
           preload="auto"
+          hidden={true}
         />
       </div>
       <div className={zone}>
@@ -74,7 +76,7 @@ export default function TouchZone(props) {
           id={vid}
           ref={videoRef}
           muted={false}
-          loop={true}
+          loop={false}
           preload="auto"
           onEnded={handleEnd}
         />

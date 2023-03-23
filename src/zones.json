@@ -1,50 +1,45 @@
 {
   "window1": {
-        "zone1": {
-            "zBorder": "20",
-            "xMin": "-8",
-            "xMax": "8",
-            "yMin": "-10",
-            "yMax": "-2",
-            "zMin": "35",
-            "zMax": "45"
-        },
-        "zone2": {
-            "zBorder": "20",
-            "xMin": "-15",
-            "xMax": "-9",
-            "yMin": "0",
-            "yMax": "10",
-            "zMin": "45",
-            "zMax": "55"
-        },
-        "zone3": {
-            "zBorder": "20",
-            "xMin": "-26",
-            "xMax": "-16",
-            "yMin": "0",
-            "yMax": "10",
-            "zMin": "45",
-            "zMax": "55"
-        },
-        "zone4": {
-            "zBorder": "20",
-            "xMin": "-26",
-            "xMax": "-16",
-            "yMin": "0",
-            "yMax": "10",
-            "zMin": "45",
-            "zMax": "55"
-        },
-        "zone5": {
-            "zBorder": "20",
-            "xMin": "-26",
-            "xMax": "-16",
-            "yMin": "0",
-            "yMax": "10",
-            "zMin": "45",
-            "zMax": "55"
-        }
+    "zone1" : {
+        "xMin" : "100",
+        "xMax": "200",
+        "yMin" : "0",
+        "yMax" : "50",
+        "zMin" : "130",
+        "zMax" : "230"
+    },
+    "zone2" : {
+        "xMin" : "0",
+        "xMax": "50",
+        "yMin" : "0",
+        "yMax" : "50",
+        "zMin" : "130",
+        "zMax" : "230"
+    },
+    "zone3" : {
+        "xMin" : "0",
+        "xMax": "30",
+        "yMin" : "0",
+        "yMax" : "50",
+        "zMin" : "150",
+        "zMax" : "230"
+    },
+    "zone4" : {
+        "xMin" : "-100",
+        "xMax" : "-20",
+        "yMin" : "0",
+        "yMax" : "50",
+        "zMin" : "100",
+        "zMax" : "200"
+    },
+    "zone5" : {
+        "xMin" : "-100",
+        "xMax": "-10",
+        "yMin" : "0",
+        "yMax" : "50",
+        "zMin" : "100",
+        "zMax" : "150"
+    }
   },
   "window2": {
         "zone1": {

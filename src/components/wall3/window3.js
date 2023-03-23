@@ -5,7 +5,7 @@ import vid2 from "../../assets/02_Famous Annuitants.mp4";
 import vid3 from "../../assets/03_Real Estate.mp4";
 import vid4 from "../../assets/04_Land Conservation.mp4";
 import vid5 from "../../assets/05_Not Just Teachers.mp4";
-import layout from "../../assets/layout.jpg";
+
 import "./window3.css";
 import TouchZone from "./touchZone3";
 
@@ -149,7 +149,7 @@ export default function Window3() {
           playing={getZone2}
         />
       </div>
-      <img src={layout} className="background" />
+
     </div>
   );
 }

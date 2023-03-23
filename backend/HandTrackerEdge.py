@@ -84,7 +84,7 @@ class HandTracker:
             Ex: if trace==3, both application and low level info are displayed.
                       
     """
-    def __init__(self, input_src=None,
+    def __init__(self, input_src='None',
                 pd_model=PALM_DETECTION_MODEL, 
                 pd_score_thresh=0.5, pd_nms_thresh=0.3,
                 use_lm=True,
@@ -103,11 +103,14 @@ class HandTracker:
                 single_hand_tolerance_thresh=10,
                 use_same_image=True,
                 lm_nb_threads=2,
-                stats=False,
-                trace=0
+                stats=True,
+                trace=4
                 ):
 
         self.use_lm = use_lm
+        #self.use_lm = False
+
+
         if not use_lm:
             # print("use_lm=False is not supported in Edge mode.")
             sys.exit()
@@ -139,7 +142,7 @@ class HandTracker:
         self.use_world_landmarks = use_world_landmarks
            
         self.stats = stats
-        self.trace = trace
+        self.trace = 4
         self.use_gesture = use_gesture
         self.use_handedness_average = use_handedness_average
         self.single_hand_tolerance_thresh = single_hand_tolerance_thresh
@@ -147,6 +150,7 @@ class HandTracker:
 
         self.device = dai.Device()
 
+        #input_src = "rgb_laconic"
         if input_src == None or input_src == "rgb" or input_src == "rgb_laconic":
             # Note that here (in Host mode), specifying "rgb_laconic" has no effect
             # Color camera frames are systematically transferred to the host
@@ -275,6 +279,9 @@ class HandTracker:
         # Define manager script node
         manager_script = pipeline.create(dai.node.Script)
         manager_script.setScript(self.build_manager_script())
+
+        self.device.setIrLaserDotProjectorBrightness(50)
+        self.device.setIrFloodLightBrightness(50)
 
         if self.xyz:
             # print("Creating MonoCameras, Stereo and SpatialLocationCalculator nodes...")
@@ -435,6 +442,9 @@ class HandTracker:
         hand.label = "right" if hand.handedness > 0.5 else "left"
         hand.norm_landmarks = np.array(res['rrn_lms'][hand_idx]).reshape(-1,3)
         hand.landmarks = (np.array(res["sqn_lms"][hand_idx]) * self.frame_size).reshape(-1,2).astype(np.int32)
+        
+        #print(res)
+
         if self.xyz:
             hand.xyz = np.array(res["xyz"][hand_idx])
             hand.xyz_zone = res["xyz_zone"][hand_idx]
@@ -453,7 +463,7 @@ class HandTracker:
             hand.world_landmarks = np.array(res["world_lms"][hand_idx]).reshape(-1, 3)
 
         if self.use_gesture: mpu.recognize_gesture(hand)
-
+        
         return hand
 
     def next_frame(self):
@@ -482,6 +492,7 @@ class HandTracker:
         hands = []
         for i in range(len(res.get("lm_score",[]))):
             hand = self.extract_hand_data(res, i)
+
             hands.append(hand)
 
         # Statistics
