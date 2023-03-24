@@ -17,10 +17,6 @@ if not Path(nnPath).exists():
     raise FileNotFoundError(f'Required file/s not found, please run "{sys.executable} install_requirements.py"')
 
 # MobilenetSSD label texts
-# labelMap = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
-#             "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
-
-
 labelMap = ["background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow",
             "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
 
@@ -31,7 +27,6 @@ pipeline = dai.Pipeline()
 
 # Define sources and outputs
 camRgb = pipeline.create(dai.node.ColorCamera)
-#nn = pipeline.create(dai.node.MobileNetDetectionNetwork)
 spatialDetectionNetwork = pipeline.create(dai.node.MobileNetSpatialDetectionNetwork)
 monoLeft = pipeline.create(dai.node.MonoCamera)
 monoRight = pipeline.create(dai.node.MonoCamera)
@@ -46,7 +41,6 @@ xoutRgb.setStreamName("rgb")
 xoutPreview.setStreamName("preview")
 xoutNN.setStreamName("detections")
 xoutDepth.setStreamName("depth")
-
 
 # Properties
 camRgb.setPreviewSize(300, 300)    # NN input
@@ -73,18 +67,7 @@ spatialDetectionNetwork.setBoundingBoxScaleFactor(0.5)
 spatialDetectionNetwork.setDepthLowerThreshold(100)
 spatialDetectionNetwork.setDepthUpperThreshold(5000)
 
-# Define a neural network that will make predictions based on the source frames
-# xoutNN.setConfidenceThreshold(0.5)
-# xoutNN.setBlobPath(nnPath)
-# xoutNN.setNumInferenceThreads(2)
-# xoutNN.input.setBlocking(False)
-
 # Linking
-# camRgb.video.link(xoutRgb.input)
-# camRgb.preview.link(xoutPreview.input)
-
-#nn.out.link(xoutNN.input)
-
 monoLeft.out.link(stereo.left)
 monoRight.out.link(stereo.right)
 camRgb.preview.link(spatialDetectionNetwork.input)
@@ -98,7 +81,6 @@ spatialDetectionNetwork.out.link(xoutNN.input)
 
 stereo.depth.link(spatialDetectionNetwork.inputDepth)
 spatialDetectionNetwork.passthroughDepth.link(xoutDepth.input)
-
 
 # Connect to device and start pipeline
 with dai.Device(pipeline) as device:
@@ -131,67 +113,53 @@ with dai.Device(pipeline) as device:
         color = (255, 0, 0)
 
         for detection in detections:
-            bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
-            cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
-            cv2.putText(frame, f"{int(detection.confidence * 100)}%", (bbox[0] + 10, bbox[1] + 40), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
-            cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
-
-            roiData = detection.boundingBoxMapping
-            roi = roiData.roi
-            roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
-            topLeft = roi.topLeft()
-            bottomRight = roi.bottomRight()
-            xmin = int(topLeft.x)
-            ymin = int(topLeft.y)
-            xmax = int(bottomRight.x)
-            ymax = int(bottomRight.y)
-            cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
-
-            # Denormalize bounding box
-            x1 = int(detection.xmin * width)
-            x2 = int(detection.xmax * width)
-            y1 = int(detection.ymin * height)
-            y2 = int(detection.ymax * height)
-            
             try:
                 label = labelMap[detection.label]
             except:
                 label = detection.label
 
-            if label != "person":
-                break
-            
-            cv2.putText(frame, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+            # Only detect people
+            if label == "person":
+                bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
+                cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
+                cv2.putText(frame, f"{int(detection.confidence * 100)}%", (bbox[0] + 10, bbox[1] + 40), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
+                cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), cv2.FONT_HERSHEY_SIMPLEX)
+                roiData = detection.boundingBoxMapping
+                roi = roiData.roi
+                roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
+                topLeft = roi.topLeft()
+                bottomRight = roi.bottomRight()
+                xmin = int(topLeft.x)
+                ymin = int(topLeft.y)
+                xmax = int(bottomRight.x)
+                ymax = int(bottomRight.y)
+                cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
+
+                # Denormalize bounding box
+                x1 = int(detection.xmin * width)
+                x2 = int(detection.xmax * width)
+                y1 = int(detection.ymin * height)
+                y2 = int(detection.ymax * height)
+            
+                cv2.putText(frame, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 95), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), cv2.FONT_HERSHEY_SIMPLEX)
+
+                # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
+                print(f"X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                sys.stdout.flush()
+                # ------------------------------------------------------------------------------------------------------------------------------- #
 
         cv2.putText(frame, "NN fps: {:.2f}".format(fps), (2, frame.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, (255,255,255))
         #cv2.imshow("depth", depthFrameColor)
         cv2.imshow(name, frame)
 
-    #cv2.namedWindow("rgb", cv2.WINDOW_NORMAL)
-    #cv2.resizeWindow("rgb", 1280, 720)
-
-    def displayFrame(name, frame):
-        color = (255, 0, 0)
-        for detection in detections:
-            bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
-            cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
-            cv2.putText(frame, f"{int(detection.confidence * 100)}%", (bbox[0] + 10, bbox[1] + 40), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
-            cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
-        # Show the frame
-        cv2.imshow(name, frame)
-
     cv2.namedWindow("rgb", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("rgb", 1280, 720)
-    
-    # cv2.namedWindow("depth", cv2.WINDOW_NORMAL)
-    # cv2.resizeWindow("depth", 1280, 720)
-    print("Resize video window with mouse drag!")
 
     while True:
         # Instead of get (blocking), we use tryGet (non-blocking) which will return the available data or None otherwise
@@ -223,12 +191,7 @@ with dai.Device(pipeline) as device:
             detections = inDet.detections
 
         if videoFrame is not None:
-            #displayFrame("rgb", videoFrame)
             displaySpatializedFrame("rgb", videoFrame)
-        
-        #if previewFrame is not None:
-            #displayFrame("preview", previewFrame)
-        #    displayFrame("preview", previewFrame)
         
         if cv2.waitKey(1) == ord('q'):
             break

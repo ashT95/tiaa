@@ -12,17 +12,26 @@ if (require("electron-squirrel-startup")) {
 let PythonShellLibrary = require("python-shell");
 let { PythonShell } = PythonShellLibrary;
 
-let shell = new PythonShell("backend/demo.py", {
+// ---------------HAND TRACKING SCRIPT-------------------------
+// let shell = new PythonShell("backend/handTracker/demo.py", {
+//   // The '-u' tells Python to flush every time
+//   pythonOptions: ["-u"],
+//   args: ["-e", "-xyz"],
+// });
+//-------------------------------------------------------------
+
+// ---------------MOBILENET TRACKING SCRIPT--------------------------------------------
+let shell = new PythonShell("backend/mobilenetTracker/MobileNet/rgb_mobilenet_4k.py", {
   // The '-u' tells Python to flush every time
   pythonOptions: ["-u"],
-  args: ["-e", "-xyz"],
+  args: [],
 });
 
 shell.on("message", function (message) {
   //sending data to frontend 
   mainWindow.webContents.send("main-to-render", message);
 });
-
+//--------------------------------------------------------------------------------------
 
 const createWindow = () => {
   // Create the browser window.
