@@ -42,9 +42,15 @@ xoutPreview.setStreamName("preview")
 xoutNN.setStreamName("detections")
 xoutDepth.setStreamName("depth")
 
+dai.Device().setIrFloodLightBrightness(100)
+dai.Device().setIrLaserDotProjectorBrightness(100)
+
+# self.device.setIrLaserDotProjectorBrightness(50)
+# self.device.setIrFloodLightBrightness(50)
+
 # Properties
 camRgb.setPreviewSize(300, 300)    # NN input
-camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_4_K)
 camRgb.setInterleaved(False)
 camRgb.setPreviewKeepAspectRatio(False)
 camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
@@ -149,6 +155,11 @@ with dai.Device(pipeline) as device:
 
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), cv2.FONT_HERSHEY_SIMPLEX)
 
+                # cX = x1+(x2-x1)/2
+                # CY = y1
+                
+                # frame = cv2.circle(frame, (cX, cY), 10, (255, 0, 0), 3)
+                
                 # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
                 print(f"X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
                 sys.stdout.flush()
@@ -158,8 +169,19 @@ with dai.Device(pipeline) as device:
         #cv2.imshow("depth", depthFrameColor)
         cv2.imshow(name, frame)
 
-    cv2.namedWindow("rgb", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("rgb", 1280, 720)
+     cv2.namedWindow("rgb", cv2.WINDOW_NORMAL)
+     cv2.resizeWindow("rgb", 1280, 720)
+
+
+    def displayFrame(name, frame):
+        color = (255, 0, 0)
+        for detection in detections:
+            bbox = frameNorm(frame, (detection.xmin, detection.ymin, detection.xmax, detection.ymax))
+            cv2.putText(frame, labelMap[detection.label], (bbox[0] + 10, bbox[1] + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
+            cv2.putText(frame, f"{int(detection.confidence * 100)}%", (bbox[0] + 10, bbox[1] + 40), cv2.FONT_HERSHEY_TRIPLEX, 0.5, color)
+            cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), color, 2)
+        # Show the frame
+    cv2.imshow(name, frame)
 
     while True:
         # Instead of get (blocking), we use tryGet (non-blocking) which will return the available data or None otherwise
@@ -192,6 +214,7 @@ with dai.Device(pipeline) as device:
 
         if videoFrame is not None:
             displaySpatializedFrame("rgb", videoFrame)
+            # displayFrame("rgb", videoFrame)
         
         if cv2.waitKey(1) == ord('q'):
             break

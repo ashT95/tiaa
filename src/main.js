@@ -36,30 +36,8 @@ shell.on("message", function (message) {
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    show: false,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: true,
-      contextIsolation: true,
-    },
-  });
-
-  mainWindow2 = new BrowserWindow({
-    width: 800,
-    height: 600,
-    show: false,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: true,
-      contextIsolation: true,
-    },
-  });
-
-  mainWindow3 = new BrowserWindow({
-    width: 800,
-    height: 600,
+    x: 1920 + 1920,
+    y: 0,
     show: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -74,26 +52,15 @@ const createWindow = () => {
     mainWindow.focus();
   });
 
-  // mainWindow2.once("ready-to-show", () => {
-  //   mainWindow2.show();
-  //   mainWindow2.focus();
-  // });
-  
-  // mainWindow3.once("ready-to-show", () => {
-  //   mainWindow3.show();
-  //   mainWindow3.focus();
-  // });
-  //ipcMain.handle("ping", () => "pong");
+  Menu.setApplicationMenu(null);
 
-  //Menu.setApplicationMenu(null);
-  //mainWindow.setFullScreen(true);
+  mainWindow.setFullScreen(true);
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  // mainWindow2.loadURL(MAIN_WINDOW2_WEBPACK_ENTRY);
-  // mainWindow3.loadURL(MAIN_WINDOW3_WEBPACK_ENTRY);
+
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-  // mainWindow2.webContents.openDevTools();
-  // mainWindow3.webContents.openDevTools();
+
 };
 
 // This method will be called when Electron has finished

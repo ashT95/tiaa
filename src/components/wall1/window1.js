@@ -33,7 +33,7 @@ export default function Window1() {
 
     if (String(result).startsWith("X:")) {
       numbers = String(result).match(/-?\d+/g).map(Number);
-      //console.log(numbers)
+      console.log(numbers)
       setXval(numbers[0]);
       setYval(numbers[1]);
       setZval(numbers[2]);
