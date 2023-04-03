@@ -36,7 +36,7 @@ shell.on("message", function (message) {
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    x: 1920 + 1920,
+    x: 1920,
     y: 0,
     show: false,
     webPreferences: {
@@ -52,9 +52,9 @@ const createWindow = () => {
     mainWindow.focus();
   });
 
-  Menu.setApplicationMenu(null);
+  //Menu.setApplicationMenu(null);
 
-  mainWindow.setFullScreen(true);
+  //mainWindow.setFullScreen(true);
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
 

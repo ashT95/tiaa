@@ -1,9 +1,18 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import zoneData from "../../zones.json";
 
 export default function TouchZone(props) {
-  const { vid, border, zone, xVal, yVal, zVal, lock, playing, borderNum } = props;
+  const { vid, border, zone, xVal, yVal, zVal, lock, playing, borderNum } =
+    props;
   const [borderShow, setBorderShow] = useState(false);
+  const [videoShow, setVideoShow] = useState(false);
+  const [zoneNum, setZoneNum] = useState(false);
+
   const videoRef = useRef(null);
   const borderRef = useRef(null);
 
@@ -20,9 +29,12 @@ export default function TouchZone(props) {
   let yBorderMin = coords[8];
   let yBorderMax = coords[9];
   let zBorderMin = coords[10];
-  let zBorderMax = coords[11]; 
+  let zBorderMax = coords[11];
 
   useEffect(() => {
+    let num = parseInt(String(zone).replace("zone", ""));
+    setZoneNum(num);
+
     if (
       xVal >= xBorderMin &&
       xVal < xBorderMax &&
@@ -31,10 +43,10 @@ export default function TouchZone(props) {
       zVal >= zBorderMin &&
       zVal < zBorderMax
     ) {
-      handleBorder();
       setBorderShow(true);
-    } 
-    
+      handleBorder();
+    }
+
     if (
       xVal >= xMin &&
       xVal < xMax &&
@@ -43,17 +55,16 @@ export default function TouchZone(props) {
       zVal >= zMin &&
       zVal < zMax
     ) {
-      handlePlay();
       setBorderShow(false);
+      setVideoShow(true);
+      handlePlay();
       //console.log(zone)
-    } 
-    
-  }, [xVal, yVal, zVal, borderShow]);
+    }
+  }, [xVal, yVal, zVal, borderShow, zone, videoShow, zoneNum]);
 
   const handleEnd = () => {
-    videoRef.current.currentTime = 0;
-    videoRef.current.pause();
     playing(false);
+    setVideoShow(false);
   };
 
   const handlePlay = () => {
@@ -65,9 +76,13 @@ export default function TouchZone(props) {
     borderRef.current.play();
   };
 
+  const handleBorderEnd = () => {
+    setBorderShow(false);
+  };
+
   return (
     <div>
-      <div className={borderShow ? `border${borderNum}` : `hiddenBorder${borderNum}`}>
+      <div className={borderShow ? `border${borderNum}` : `hidden${borderNum}`}>
         <video
           src={border}
           id={border}
@@ -75,10 +90,11 @@ export default function TouchZone(props) {
           muted={false}
           loop={true}
           preload="auto"
-          hidden={borderShow ? false : true}
+          onEnded={handleBorderEnd}
+          hidden={borderShow && !videoShow ? false : true}
         />
       </div>
-      <div className={zone}>
+      <div className={videoShow ? `${zone}` : `hidden${zoneNum}`}>
         <video
           src={vid}
           id={vid}
@@ -87,6 +103,7 @@ export default function TouchZone(props) {
           loop={false}
           preload="auto"
           onEnded={handleEnd}
+          hidden={videoShow ? false : true}
         />
       </div>
     </div>

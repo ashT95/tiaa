@@ -47,6 +47,7 @@ xoutManip.setStreamName("right")
 nnOut.setStreamName("detections")
 xoutDepth.setStreamName("depth")
 
+
 # Properties
 imageManip.initialConfig.setResizeThumbnail(300, 300)
 # The NN model expects BGR input. By default ImageManip output type would be same as input (gray in this case)
@@ -62,7 +63,7 @@ monoRight.setBoardSocket(dai.CameraBoardSocket.RIGHT)
 stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
 
 # Define a neural network that will make predictions based on the source frames
-spatialDetectionNetwork.setConfidenceThreshold(0.5)
+spatialDetectionNetwork.setConfidenceThreshold(0.2)
 spatialDetectionNetwork.setBlobPath(nnPath)
 spatialDetectionNetwork.input.setBlocking(False)
 spatialDetectionNetwork.setBoundingBoxScaleFactor(0.5)
@@ -102,7 +103,7 @@ with dai.Device(pipeline) as device:
     color = (255, 255, 255)
 
     while True:
-        inRectified = previewQueue.get()
+        inRectified = previewQueue.tryGet()
         inDet = detectionNNQueue.get()
         inDepth = depthQueue.get()
 
@@ -113,8 +114,6 @@ with dai.Device(pipeline) as device:
             counter = 0
             startTime = currentTime
 
-        rectifiedRight = inRectified.getCvFrame()
-
         depthFrame = inDepth.getFrame() # depthFrame values are in millimeters
 
         depthFrameColor = cv2.normalize(depthFrame, None, 255, 0, cv2.NORM_INF, cv2.CV_8UC1)
@@ -124,42 +123,51 @@ with dai.Device(pipeline) as device:
         detections = inDet.detections
 
         # If the rectifiedRight is available, draw bounding boxes on it and show the rectifiedRight
-        height = rectifiedRight.shape[1]
-        width = rectifiedRight.shape[1]
-        for detection in detections:
-            roiData = detection.boundingBoxMapping
-            roi = roiData.roi
-            roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
-            topLeft = roi.topLeft()
-            bottomRight = roi.bottomRight()
-            xmin = int(topLeft.x)
-            ymin = int(topLeft.y)
-            xmax = int(bottomRight.x)
-            ymax = int(bottomRight.y)
-            cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
+        if inRectified is not None:
+            rectifiedRight = inRectified.getCvFrame()
+            
+            height = rectifiedRight.shape[1]
+            width = rectifiedRight.shape[1]
+            for detection in detections:
+                try:
+                    label = labelMap[detection.label]
+                except:
+                    label = detection.label
+                    
+                if label == "person":
+                    roiData = detection.boundingBoxMapping
+                    roi = roiData.roi
+                    roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
+                    topLeft = roi.topLeft()
+                    bottomRight = roi.bottomRight()
+                    xmin = int(topLeft.x)
+                    ymin = int(topLeft.y)
+                    xmax = int(bottomRight.x)
+                    ymax = int(bottomRight.y)
+                    cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
 
-            # Denormalize bounding box
-            x1 = int(detection.xmin * width)
-            x2 = int(detection.xmax * width)
-            y1 = int(detection.ymin * height)
-            y2 = int(detection.ymax * height)
+                    # Denormalize bounding box
+                    x1 = int(detection.xmin * width)
+                    x2 = int(detection.xmax * width)
+                    y1 = int(detection.ymin * height)
+                    y2 = int(detection.ymax * height)
 
-            try:
-                label = labelMap[detection.label]
-            except:
-                label = detection.label
+                    cv2.putText(rectifiedRight, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                    cv2.putText(rectifiedRight, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                    cv2.putText(rectifiedRight, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                    cv2.putText(rectifiedRight, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                    cv2.putText(rectifiedRight, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
 
-            cv2.putText(rectifiedRight, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(rectifiedRight, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(rectifiedRight, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(rectifiedRight, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(rectifiedRight, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                    cv2.rectangle(rectifiedRight, (x1, y1), (x2, y2), color, cv2.FONT_HERSHEY_SIMPLEX)
 
-            cv2.rectangle(rectifiedRight, (x1, y1), (x2, y2), color, cv2.FONT_HERSHEY_SIMPLEX)
+                    # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
+                    print(f"X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                    sys.stdout.flush()
+                    # ------------------------------------------------------------------------------------------------------------------------------- #
 
-        cv2.putText(rectifiedRight, "NN fps: {:.2f}".format(fps), (2, rectifiedRight.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color)
-        cv2.imshow("depth", depthFrameColor)
-        cv2.imshow("rectified right", rectifiedRight)
+            cv2.putText(rectifiedRight, "NN fps: {:.2f}".format(fps), (2, rectifiedRight.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color)
+            cv2.imshow("depth", depthFrameColor)
+            cv2.imshow("rectified right", rectifiedRight)
 
         if cv2.waitKey(1) == ord('q'):
             break
