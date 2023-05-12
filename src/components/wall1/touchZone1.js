@@ -15,7 +15,8 @@ export default function TouchZone(props) {
 
   const videoRef = useRef(null);
   const borderRef = useRef(null);
-
+ 
+  //get coordinate ranges from json file
   let data = JSON.parse(JSON.stringify(zoneData.window1));
   let coords = Object.values(data[zone]);
   let xMin = coords[0];

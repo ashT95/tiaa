@@ -14,7 +14,7 @@ Spatial Tiny-yolo example
 '''
 
 # Get argument first
-nnBlobPath = str((Path(__file__).parent / Path('../models/yolo-v4-tiny-tf_openvino_2021.4_6shave.blob')).resolve().absolute())
+nnBlobPath = str((Path(__file__).parent / Path('../models/yolov5trainedweight_openvino_2022.1_6shave.blob')).resolve().absolute())
 if 1 < len(sys.argv):
     arg = sys.argv[1]
     if arg == "yolo3":
@@ -32,18 +32,7 @@ if not Path(nnBlobPath).exists():
 
 # Tiny yolo v3/4 label texts
 labelMap = [
-    "person",         "bicycle",    "car",           "motorbike",     "aeroplane",   "bus",           "train",
-    "truck",          "boat",       "traffic light", "fire hydrant",  "stop sign",   "parking meter", "bench",
-    "bird",           "cat",        "dog",           "horse",         "sheep",       "cow",           "elephant",
-    "bear",           "zebra",      "giraffe",       "backpack",      "umbrella",    "handbag",       "tie",
-    "suitcase",       "frisbee",    "skis",          "snowboard",     "sports ball", "kite",          "baseball bat",
-    "baseball glove", "skateboard", "surfboard",     "tennis racket", "bottle",      "wine glass",    "cup",
-    "fork",           "knife",      "spoon",         "bowl",          "banana",      "apple",         "sandwich",
-    "orange",         "broccoli",   "carrot",        "hot dog",       "pizza",       "donut",         "cake",
-    "chair",          "sofa",       "pottedplant",   "bed",           "diningtable", "toilet",        "tvmonitor",
-    "laptop",         "mouse",      "remote",        "keyboard",      "cell phone",  "microwave",     "oven",
-    "toaster",        "sink",       "refrigerator",  "book",          "clock",       "vase",          "scissors",
-    "teddy bear",     "hair drier", "toothbrush"
+    "hand", "person"
 ]
 
 syncNN = True
@@ -69,7 +58,7 @@ xoutDepth.setStreamName("depth")
 nnNetworkOut.setStreamName("nnNetwork")
 
 # Properties
-camRgb.setPreviewSize(416, 416)
+camRgb.setPreviewSize(640, 352)
 camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
 camRgb.setInterleaved(False)
 camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
@@ -122,7 +111,7 @@ with dai.Device(pipeline) as device:
     previewQueue = device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
     detectionNNQueue = device.getOutputQueue(name="detections", maxSize=4, blocking=False)
     depthQueue = device.getOutputQueue(name="depth", maxSize=4, blocking=False)
-    networkQueue = device.getOutputQueue(name="nnNetwork", maxSize=4, blocking=False);
+    networkQueue = device.getOutputQueue(name="nnNetwork", maxSize=4, blocking=False)
 
     startTime = time.monotonic()
     counter = 0
@@ -141,7 +130,7 @@ with dai.Device(pipeline) as device:
             for ten in inNN.getAllLayerNames():
                 toPrint = f'{toPrint} {ten},'
             print(toPrint)
-            printOutputLayersOnce = False;
+            printOutputLayersOnce = False
 
         frame = inPreview.getCvFrame()
         depthFrame = depth.getFrame() # depthFrame values are in millimeters

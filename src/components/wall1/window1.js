@@ -31,9 +31,11 @@ export default function Window1() {
     //getting coordinates of users' hands
     //console.log(result)
 
-    if (String(result).startsWith("X:")) {
+    if (String(result).startsWith("HAND:")) {
+      //get only the numbers
       numbers = String(result).match(/-?\d+/g).map(Number);
-      //console.log(numbers)
+      // console.log(numbers)
+      //set coordinates
       setXval(numbers[0]);
       setYval(numbers[1]);
       setZval(numbers[2]);

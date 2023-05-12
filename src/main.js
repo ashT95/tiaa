@@ -8,30 +8,43 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-//receiving data from python script
+//receiving spatial location data from python script
 let PythonShellLibrary = require("python-shell");
 let { PythonShell } = PythonShellLibrary;
 
-// ---------------HAND TRACKING SCRIPT-------------------------
+// ---------------HAND TRACKING SCRIPT------------------------- //
 // let shell = new PythonShell("backend/handTracker/demo.py", {
 //   // The '-u' tells Python to flush every time
 //   pythonOptions: ["-u"],
 //   args: ["-e", "-xyz"],
 // });
-//-------------------------------------------------------------
+//------------------------------------------------------------- //
 
-// ---------------MOBILENET TRACKING SCRIPT--------------------------------------------
-let shell = new PythonShell("backend/mobilenetTracker/MobileNet/rgb_mobilenet_4k.py", {
+// ---------------MOBILENET TRACKING SCRIPT-------------------------------------------- //
+// let shell = new PythonShell("backend/mobilenetTracker/MobileNet/rgb_mobilenet_4k.py", {
+//   // The '-u' tells Python to flush every time
+//   pythonOptions: ["-u"],
+//   args: [],
+// });
+
+// shell.on("message", function (message) {
+//   //sending data to frontend 
+//   mainWindow.webContents.send("main-to-render", message);
+// });
+//-------------------------------------------------------------------------------------- //
+
+// ---------------TRAINED YOLOv5 TRACKING SCRIPT-------------------------------------------- //
+let shell = new PythonShell("backend/yolov5/main_api.py", {
   // The '-u' tells Python to flush every time
   pythonOptions: ["-u"],
   args: [],
 });
 
 shell.on("message", function (message) {
-  //sending data to frontend 
+  // sending data to frontend window
   mainWindow.webContents.send("main-to-render", message);
 });
-//--------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------- //
 
 const createWindow = () => {
   // Create the browser window.
