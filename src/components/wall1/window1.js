@@ -18,6 +18,10 @@ export default function Window1() {
   const [yVal, setYval] = useState(null);
   const [zVal, setZval] = useState(null);
 
+  const [personX, setPersonX] = useState(null);
+  const [personY, setPersonY] = useState(null);
+  const [personZ, setPersonZ] = useState(null);
+
   const [lock1, setLock1] = useState(false);
   const [lock2, setLock2] = useState(false);
   const [lock3, setLock3] = useState(false);
@@ -25,20 +29,30 @@ export default function Window1() {
   const [lock5, setLock5] = useState(false);
 
   let active = [];
-  let numbers = [];
+  let coords = [];
+  let personCoords = [];
 
   window.ipcRender.receive("main-to-render", (result) => {
     //getting coordinates of users' hands
     //console.log(result)
 
     if (String(result).startsWith("HAND:")) {
-      //get only the numbers
-      numbers = String(result).match(/-?\d+/g).map(Number);
-      // console.log(numbers)
+      //get only the coords
+      coords = String(result).match(/-?\d+/g).map(Number);
+      // console.log(coords)
       //set coordinates
-      setXval(numbers[0]);
-      setYval(numbers[1]);
-      setZval(numbers[2]);
+      setXval(coords[0]);
+      setYval(coords[1]);
+      setZval(coords[2]);
+    }
+    if (String(result).startsWith("PERSON:")) {
+      //get only the numbers
+      personCoords = String(result).match(/-?\d+/g).map(Number);
+      // console.log(personCoords)
+      //set coordinates
+      setPersonX(personCoords[0]);
+      setPersonY(personCoords[1]);
+      setPersonZ(personCoords[2]);
     }
   });
 
