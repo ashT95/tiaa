@@ -51,6 +51,8 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     x: 1920,
     y: 0,
+    width: 1920,
+    height: 1080,
     show: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -72,7 +74,7 @@ const createWindow = () => {
 
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
 };
 
