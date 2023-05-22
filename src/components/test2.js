@@ -27,9 +27,15 @@ export default function Test2() {
 			setYval(numbers[1]);
 			setZval(numbers[2]);
 
-            setX(2000 - xVal)
+            if(xVal >= 0) {
+                setX(2000 - xVal)
+            } else if (xVal < 0) {
+                setX(2000 + Math.abs(xVal))
+            }
             setY(zVal)
-            console.log(x, y)
+            let n = 1920 / 4000
+            let n2 = x * n
+            console.log(n2)
 			// setItems([...items, { x: xVal, y: yVal }]);
 		}
 	});
@@ -70,7 +76,7 @@ export default function Test2() {
 
 		let wCalc = newMax / oldMax
 		let hCalc = yNew / yOld
-
+        console.log(x * wCalc, y * hCalc)
 		ctx.rect(x * wCalc, y * hCalc, 40, 40)
 		ctx.stroke();
 
