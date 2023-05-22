@@ -200,7 +200,7 @@ with dai.Device(pipeline) as device:
 
             # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
             if (label == "hand") :
-                # print(f"HAND:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                print(f"TWO:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
                 print(f"HAND: {xmin, ymin, xmax, ymax} ")
                 sys.stdout.flush()
             if (label == "person") :
