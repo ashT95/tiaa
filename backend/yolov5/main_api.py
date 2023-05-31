@@ -10,6 +10,7 @@ import cv2
 import depthai as dai
 import numpy as np
 import time
+import math 
 
 # Define blob path/file location
 nnPath = str(
@@ -54,7 +55,7 @@ camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
 camRgb.setInterleaved(False)
 camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
 # camRgb.setImageOrientation(dai.CameraImageOrientation.ROTATE_180_DEG)
-# camRgb.setFps(6)
+camRgb.setFps(6)
 
 monoLeft.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
 monoLeft.setBoardSocket(dai.CameraBoardSocket.LEFT)
@@ -66,6 +67,23 @@ stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
 # Align depth map to the perspective of RGB camera, on which inference is done
 stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
 stereo.setOutputSize(monoLeft.getResolutionWidth(), monoLeft.getResolutionHeight())
+
+# Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7 (default)
+stereo.initialConfig.setMedianFilter(dai.MedianFilter.KERNEL_7x7)
+stereo.setLeftRightCheck(True)
+stereo.setSubpixel(True)
+
+config = stereo.initialConfig.get()
+config.postProcessing.speckleFilter.enable = False
+config.postProcessing.speckleFilter.speckleRange = 50
+config.postProcessing.temporalFilter.enable = True
+config.postProcessing.spatialFilter.enable = True
+config.postProcessing.spatialFilter.holeFillingRadius = 2
+config.postProcessing.spatialFilter.numIterations = 1
+config.postProcessing.decimationFilter.decimationFactor = 1
+stereo.initialConfig.set(config)
+
+# dai.DeviceBase().setIrFloodLightBrightness(500)
 
 # Network specific settings
 detectionNetwork.setConfidenceThreshold(0.5)
@@ -102,7 +120,7 @@ detectionNetwork.setNumInferenceThreads(2)
 detectionNetwork.input.setBlocking(False)
 
 detectionNetwork.setDepthLowerThreshold(100)
-detectionNetwork.setDepthUpperThreshold(5000)
+detectionNetwork.setDepthUpperThreshold(50000)
 
 # Linking
 monoLeft.out.link(stereo.left)
@@ -165,6 +183,12 @@ with dai.Device(pipeline) as device:
 
         detections = inDet.detections
 
+        def calculate_distance(coords):
+            return math.sqrt(coords.x ** 2 + coords.y ** 2 + coords.z ** 2)
+        def get_lens_position(dist):
+        # =150-A10*0.0242+0.00000412*A10^2
+            return int(150 - dist * 0.0242 + 0.00000412 * dist**2)
+
         # If the frame is available, draw bounding boxes on it and show the frame
         height = frame.shape[0]
         width = frame.shape[1]
@@ -174,42 +198,47 @@ with dai.Device(pipeline) as device:
             except:
                 label = detection.label
 
-            roiData = detection.boundingBoxMapping
-            roi = roiData.roi
-            roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
-            topLeft = roi.topLeft()
-            bottomRight = roi.bottomRight()
-            xmin = int(topLeft.x)
-            ymin = int(topLeft.y)
-            xmax = int(bottomRight.x)
-            ymax = int(bottomRight.y)
-            cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
+            if (label == "hand") :
+                roiData = detection.boundingBoxMapping
+                roi = roiData.roi
+                roi = roi.denormalize(depthFrameColor.shape[1], depthFrameColor.shape[0])
+                topLeft = roi.topLeft()
+                bottomRight = roi.bottomRight()
+                xmin = int(topLeft.x)
+                ymin = int(topLeft.y)
+                xmax = int(bottomRight.x)
+                ymax = int(bottomRight.y)
+                cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
 
-            # Denormalize bounding box
-            x1 = int(detection.xmin * width)
-            x2 = int(detection.xmax * width)
-            y1 = int(detection.ymin * height)
-            y2 = int(detection.ymax * height)
+                # Denormalize bounding box
+                x1 = int(detection.xmin * width)
+                x2 = int(detection.xmax * width)
+                y1 = int(detection.ymin * height)
+                y2 = int(detection.ymax * height)
 
-            cv2.putText(frame, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, cv2.FONT_HERSHEY_SIMPLEX)
+                cv2.putText(frame, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, cv2.FONT_HERSHEY_SIMPLEX)
+
+                dist = int(calculate_distance(detection.spatialCoordinates))
+                pos = get_lens_position(dist)
+                print(pos)
 
             # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
-            if (label == "hand") :
-                print(f"TWO:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
-                print(f"HAND: {xmin, ymin, xmax, ymax} ")
-                sys.stdout.flush()
-            if (label == "person") :
-                print(f"PERSON:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
-                sys.stdout.flush()
+            
+                # print(f"TWO:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                # print(f"HAND: {xmin, ymin, xmax, ymax} ")
+                # sys.stdout.flush()
+            # if (label == "person") :
+                # print(f"PERSON:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                # sys.stdout.flush()
             # ------------------------------------------------------------------------------------------------------------------------------- #
 
         cv2.putText(frame, "NN fps: {:.2f}".format(fps), (2, frame.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color)
-        # cv2.imshow("depth", depthFrameColor)
+        cv2.imshow("depth", depthFrameColor)
         cv2.imshow("rgb", frame)
 
         if cv2.waitKey(1) == ord("q"):

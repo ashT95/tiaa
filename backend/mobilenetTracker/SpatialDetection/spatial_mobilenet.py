@@ -6,6 +6,7 @@ import cv2
 import depthai as dai
 import numpy as np
 import time
+import math
 
 '''
 Spatial detection network demo.
@@ -122,6 +123,12 @@ with dai.Device(pipeline) as device:
 
         detections = inDet.detections
 
+        def calculate_distance(coords):
+            return math.sqrt(coords.x ** 2 + coords.y ** 2 + coords.z ** 2)
+        def get_lens_position(dist):
+        # =150-A10*0.0242+0.00000412*A10^2
+            return int(150 - dist * 0.0242 + 0.00000412 * dist**2)
+
         # If the frame is available, draw bounding boxes on it and show the frame
         height = frame.shape[0]
         width  = frame.shape[1]
@@ -156,6 +163,10 @@ with dai.Device(pipeline) as device:
                 cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
 
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), cv2.FONT_HERSHEY_SIMPLEX)
+
+                dist = int(calculate_distance(detection.spatialCoordinates))
+                pos = get_lens_position(dist)
+                print(pos)
 
         cv2.putText(frame, "NN fps: {:.2f}".format(fps), (2, frame.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, (255,255,255))
         cv2.imshow("depth", depthFrameColor)
