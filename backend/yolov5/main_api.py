@@ -63,8 +63,9 @@ monoRight.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
 monoRight.setBoardSocket(dai.CameraBoardSocket.RIGHT)
 
 # setting node configs
-stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
+# stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
 # Align depth map to the perspective of RGB camera, on which inference is done
+stereo.initialConfig.setConfidenceThreshold(230)
 stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
 stereo.setOutputSize(monoLeft.getResolutionWidth(), monoLeft.getResolutionHeight())
 
@@ -82,8 +83,6 @@ config.postProcessing.spatialFilter.holeFillingRadius = 2
 config.postProcessing.spatialFilter.numIterations = 1
 config.postProcessing.decimationFilter.decimationFactor = 1
 stereo.initialConfig.set(config)
-
-# dai.DeviceBase().setIrFloodLightBrightness(500)
 
 # Network specific settings
 detectionNetwork.setConfidenceThreshold(0.5)
@@ -119,8 +118,8 @@ detectionNetwork.setBlobPath(nnPath)
 detectionNetwork.setNumInferenceThreads(2)
 detectionNetwork.input.setBlocking(False)
 
-detectionNetwork.setDepthLowerThreshold(100)
-detectionNetwork.setDepthUpperThreshold(10000)
+detectionNetwork.setDepthLowerThreshold(200)
+detectionNetwork.setDepthUpperThreshold(30000)
 
 # Linking
 monoLeft.out.link(stereo.left)
@@ -138,8 +137,11 @@ stereo.depth.link(detectionNetwork.inputDepth)
 detectionNetwork.passthroughDepth.link(xoutDepth.input)
 detectionNetwork.outNetwork.link(nnNetworkOut.input)
 
+
 # Connect to device and start pipeline
 with dai.Device(pipeline) as device:
+    device.setIrLaserDotProjectorBrightness(100) # in mA, 0..1200
+    device.setIrFloodLightBrightness(0) # in mA, 0..1500
     # Output queues will be used to get the rgb frames and nn data from the outputs defined above
     previewQueue = device.getOutputQueue(name="rgb", maxSize=4, blocking=False)
     detectionNNQueue = device.getOutputQueue(name="nn", maxSize=4, blocking=False)
@@ -152,11 +154,18 @@ with dai.Device(pipeline) as device:
     color = (255, 255, 255)
     printOutputLayersOnce = True
 
+    # def _calc_angle(frame, offset, HFOV):
+    #     return math.atan(math.tan(HFOV / 2.0) * offset / (frame.shape[1] / 2.0))
+
     while True:
         inPreview = previewQueue.get()
         inDet = detectionNNQueue.get()
         depth = depthQueue.get()
         inNN = networkQueue.get()
+
+        # calibData = device.readCalibration()
+        # HFOV = np.deg2rad(calibData.getFov(dai.CameraBoardSocket(depth.getInstanceNum())))
+        # averaging_method = np.mean
 
         if printOutputLayersOnce:
             toPrint = 'Output layer names:'
@@ -183,11 +192,11 @@ with dai.Device(pipeline) as device:
 
         detections = inDet.detections
 
-        def calculate_distance(coords):
-            return math.sqrt(coords.x ** 2 + coords.y ** 2 + coords.z ** 2)
-        def get_lens_position(dist):
-        # =150-A10*0.0242+0.00000412*A10^2
-            return int(150 - dist * 0.0242 + 0.00000412 * dist**2)
+        # def calculate_distance(coords):
+        #     return math.sqrt(coords.x ** 2 + coords.y ** 2 + coords.z ** 2)
+        # def get_lens_position(dist):
+        # # =150-A10*0.0242+0.00000412*A10^2
+        #     return int(150 - dist * 0.0242 + 0.00000412 * dist**2)
 
         # If the frame is available, draw bounding boxes on it and show the frame
         height = frame.shape[0]
@@ -197,6 +206,7 @@ with dai.Device(pipeline) as device:
                 label = labels[detection.label]
             except:
                 label = detection.label
+            
 
             if (label == "hand") :
                 roiData = detection.boundingBoxMapping
@@ -210,6 +220,31 @@ with dai.Device(pipeline) as device:
                 ymax = int(bottomRight.y)
                 cv2.rectangle(depthFrameColor, (xmin, ymin), (xmax, ymax), color, cv2.FONT_HERSHEY_SCRIPT_SIMPLEX)
 
+                # Calculate the average depth in the ROI.
+                # depthROI = depthFrame[ymin:ymax, xmin:xmax]
+                # inRange = (200 <= depthROI) & (depthROI <= 30000)
+
+                # averageDepth = averaging_method(depthROI[inRange])
+
+                # centroid = { # Get centroid of the ROI
+                #     'x': int((xmax + xmin) / 2),
+                #     'y': int((ymax + ymin) / 2)
+                # }
+
+                # midW = int(depthFrame.shape[1] / 2) # middle of the depth img width
+                # midH = int(depthFrame.shape[0] / 2) # middle of the depth img height
+                # bb_x_pos = centroid['x'] - midW
+                # bb_y_pos = centroid['y'] - midH
+
+                # angle_x = _calc_angle(depthFrame, bb_x_pos, HFOV)
+                # angle_y = _calc_angle(depthFrame, bb_y_pos, HFOV)
+
+                # spatials = {
+                #     'z': averageDepth,
+                #     'x': averageDepth * math.tan(angle_x),
+                #     'y': -averageDepth * math.tan(angle_y)
+                # }
+
                 # Denormalize bounding box
                 x1 = int(detection.xmin * width)
                 x2 = int(detection.xmax * width)
@@ -218,18 +253,21 @@ with dai.Device(pipeline) as device:
 
                 cv2.putText(frame, str(label), (x1 + 10, y1 + 20), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
                 cv2.putText(frame, "{:.2f}".format(detection.confidence*100), (x1 + 10, y1 + 35), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-                cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)} mm", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-                cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)} mm", (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
-                cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)} mm", (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"X: {int(detection.spatialCoordinates.x)}", (x1 + 10, y1 + 50), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Y: {int(detection.spatialCoordinates.y)}" , (x1 + 10, y1 + 65), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
+                cv2.putText(frame, f"Z: {int(detection.spatialCoordinates.z)}" , (x1 + 10, y1 + 80), cv2.FONT_HERSHEY_TRIPLEX, 0.5, 255)
                 cv2.rectangle(frame, (x1, y1), (x2, y2), color, cv2.FONT_HERSHEY_SIMPLEX)
 
-                dist = int(calculate_distance(detection.spatialCoordinates))
-                pos = get_lens_position(dist)
+
+        
+                # dist = int(calculate_distance(detection.spatialCoordinates))
+                # pos = get_lens_position(dist)
                 # print(pos)
 
             # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
                 print(f"HAND:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
                 sys.stdout.flush()
+
             # if (label == "person") :
                 # print(f"PERSON:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
                 # sys.stdout.flush()

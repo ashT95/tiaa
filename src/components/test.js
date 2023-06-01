@@ -3,14 +3,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./test.css";
 
+let average = 0;
+
 export default function Test() {
 	const [xVal, setXval] = useState(0);
 	const [yVal, setYval] = useState(0);
 	const [zVal, setZval] = useState(0);
-	const [items, setItems] = useState([]);
+	const [z, setZ] = useState(0);
 	const canvasRef = useRef(null);
 
 	let numbers = [];
+	let vals = [];
+	let total = 0;
 
 	window.ipcRender.receive("main-to-render", (result) => {
 		//getting coordinates of users' hands
@@ -23,21 +27,34 @@ export default function Test() {
 			setZval(numbers[2]);
 			// console.log(numbers)
 
-			// setItems([...items, { x: xVal, y: yVal }]);
+			for (let i = 0; i < 10; i++) {
+				vals.push(zVal);
+			}
+
+			for (const val of vals) {
+				total += val;
+				let average = total / 10;
+				setZ(average);
+			}
+			vals = [];
+			total = 0;
+			average = 0;
 		}
 	});
 
 	const draw = (canvasRef) => {
 		const canvas = canvasRef.current;
 		let ctx = canvas.getContext("2d");
-		canvas.width = 1920;
-		canvas.height = 1080;
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
 		const W = canvas.width;
 		const H = canvas.height;
 
 		// converting tracking coordinates to canvas x and y ranges
-		let oldMax = -2000;
-		let oldMin = 2000;
+		// let oldMax = -2000;
+		// let oldMin = 2000;
+		let oldMax = -320;
+		let oldMin = 250;
 		let newMax = W;
 		let newMin = 0;
 		let oldRange = oldMax - oldMin;
@@ -45,7 +62,8 @@ export default function Test() {
 		let oldValue = 1400;
 		let newValue = ((oldValue - oldMin) * newRange) / oldRange + newMin;
 
-		let yOld = 3000;
+		// let yOld = 3000;
+		let yOld = 1400;
 		let yNew = H;
 		let ynewValue = 2000 * (yNew / yOld);
 
@@ -55,15 +73,14 @@ export default function Test() {
 		// ctx.setTransform(-1, 0, 0, 1, W / 2, 0); // moves the origin to the center of the canvas
 
 		let x1 = ((xVal - oldMin) * newRange) / oldRange + newMin;
-		let y1 = zVal * (yNew / yOld);
+		let y1 = ((z - 1000) * 1200) / 350 + 0;
 
 		ctx.fillStyle = "#ff0000";
 		ctx.strokeStyle = "#ff0000";
 		ctx.beginPath();
 		ctx.moveTo(0, 0);
-		ctx.rect(x1, y1, 50, 50)
+		ctx.rect(x1, y1, 100, 100);
 		ctx.stroke();
-
 	};
 
 	// for debug: finding page coordinates
