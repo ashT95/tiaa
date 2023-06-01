@@ -74,7 +74,7 @@ const createWindow = () => {
 
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
 
 };
 

@@ -10,29 +10,18 @@ export default function Test() {
 	const [items, setItems] = useState([]);
 	const canvasRef = useRef(null);
 
-	const [xMin, setXMin] = useState(0);
-	const [yMin, setYMin] = useState(0);
-	const [xMax, setXMax] = useState(0);
-	const [yMax, setYMax] = useState(0);
-
 	let numbers = [];
 
 	window.ipcRender.receive("main-to-render", (result) => {
 		//getting coordinates of users' hands
-		//console.log(result)
 
 		if (String(result).startsWith("HAND:")) {
-			// numbers = String(result).match(/-?\d+/g).map(Number);
-			numbers = String(result).match(/\d+/g).map(Number);
+			numbers = String(result).match(/-?\d+/g).map(Number);
 
-			setXMin(numbers[0])
-			setYMin(numbers[1])
-			setXMax(numbers[2])
-			setYMax(numbers[3])
-
-			// setXval(numbers[0]);
-			// setYval(numbers[1]);
-			// setZval(numbers[2]);
+			setXval(numbers[0]);
+			setYval(numbers[1]);
+			setZval(numbers[2]);
+			// console.log(numbers)
 
 			// setItems([...items, { x: xVal, y: yVal }]);
 		}
@@ -47,57 +36,34 @@ export default function Test() {
 		const H = canvas.height;
 
 		// converting tracking coordinates to canvas x and y ranges
-		// let oldMax = 2000;
-		// let oldMin = -2000;
-		// let newMax = W / 2;
-		// let newMin = -W / 2;
-		// let oldRange = oldMax - oldMin;
-		// let newRange = newMax - newMin;
-		// let oldValue = 1400;
-		// let newValue = ((oldValue - oldMin) * newRange) / oldRange + newMin;
+		let oldMax = -2000;
+		let oldMin = 2000;
+		let newMax = W;
+		let newMin = 0;
+		let oldRange = oldMax - oldMin;
+		let newRange = newMax - newMin;
+		let oldValue = 1400;
+		let newValue = ((oldValue - oldMin) * newRange) / oldRange + newMin;
 
-		// let yOld = 4000;
-		// let yNew = H;
-		// let ynewValue = 2000 * (yNew / yOld);
+		let yOld = 3000;
+		let yNew = H;
+		let ynewValue = 2000 * (yNew / yOld);
 
 		// inverting the x axis to match tracking coordinates
-
 		// ctx.setTransform(-1, 0, 0, 1, 0, 0); // resets the transform to clear
 		// ctx.clearRect(0, 0, W, H); // clears the canvas
-
 		// ctx.setTransform(-1, 0, 0, 1, W / 2, 0); // moves the origin to the center of the canvas
 
-		// for debug: testing positions
-		ctx.fillStyle = "#ff0000";
-		ctx.beginPath();
-		ctx.moveTo(0, 0);
-		ctx.arc(0, 0, 10, 0, Math.PI * 2);
-		ctx.fill();
+		let x1 = ((xVal - oldMin) * newRange) / oldRange + newMin;
+		let y1 = zVal * (yNew / yOld);
 
 		ctx.fillStyle = "#ff0000";
 		ctx.strokeStyle = "#ff0000";
 		ctx.beginPath();
-
-		let wCalc = 1920 / 640
-		let hCalc = 1080 / 352
-
-		let x1 = Math.floor(xMin * wCalc)
-		let y1 = Math.floor(yMin * hCalc)
-		let x2 = Math.floor((xMax - xMin) * wCalc)
-		let y2 = Math.floor((yMax - yMin) * hCalc)
-
-		ctx.rect(x1, y1, x2, y2)
-		// ctx.rect(xMin, yMin, xMax - xMin, yMax - yMin)
+		ctx.moveTo(0, 0);
+		ctx.rect(x1, y1, 50, 50)
 		ctx.stroke();
 
-		// mapping all world space coordinates to canvas
-		// items.map((item) => {
-		// 	ctx.fillStyle = "#ff0000";
-		// 	ctx.beginPath();
-		// 	ctx.moveTo(item.x, item.y);
-		// 	ctx.arc(item.x, item.y, 10, 0, Math.PI * 2);
-		// 	ctx.fill();
-		// });
 	};
 
 	// for debug: finding page coordinates

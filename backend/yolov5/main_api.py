@@ -120,7 +120,7 @@ detectionNetwork.setNumInferenceThreads(2)
 detectionNetwork.input.setBlocking(False)
 
 detectionNetwork.setDepthLowerThreshold(100)
-detectionNetwork.setDepthUpperThreshold(50000)
+detectionNetwork.setDepthUpperThreshold(10000)
 
 # Linking
 monoLeft.out.link(stereo.left)
@@ -225,20 +225,18 @@ with dai.Device(pipeline) as device:
 
                 dist = int(calculate_distance(detection.spatialCoordinates))
                 pos = get_lens_position(dist)
-                print(pos)
+                # print(pos)
 
             # --------------------------------------SENDING COORDINATES TO ELECTRON MAIN---------------------------------------------------- #
-            
-                # print(f"TWO:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
-                # print(f"HAND: {xmin, ymin, xmax, ymax} ")
-                # sys.stdout.flush()
+                print(f"HAND:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
+                sys.stdout.flush()
             # if (label == "person") :
                 # print(f"PERSON:X:{int(detection.spatialCoordinates.x)},Y:{int(detection.spatialCoordinates.y)},Z:{int(detection.spatialCoordinates.z)}")
                 # sys.stdout.flush()
             # ------------------------------------------------------------------------------------------------------------------------------- #
 
         cv2.putText(frame, "NN fps: {:.2f}".format(fps), (2, frame.shape[0] - 4), cv2.FONT_HERSHEY_TRIPLEX, 0.4, color)
-        cv2.imshow("depth", depthFrameColor)
+        # cv2.imshow("depth", depthFrameColor)
         cv2.imshow("rgb", frame)
 
         if cv2.waitKey(1) == ord("q"):
