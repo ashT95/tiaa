@@ -49,26 +49,6 @@ nnOut.setStreamName("nn")
 xoutDepth.setStreamName("depth")
 nnNetworkOut.setStreamName("nnNetwork")
 
-# Properties
-camRgb.setPreviewSize(640, 352)
-camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
-camRgb.setInterleaved(False)
-camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
-# camRgb.setImageOrientation(dai.CameraImageOrientation.ROTATE_180_DEG)
-camRgb.setFps(6)
-
-monoLeft.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
-monoLeft.setBoardSocket(dai.CameraBoardSocket.LEFT)
-monoRight.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
-monoRight.setBoardSocket(dai.CameraBoardSocket.RIGHT)
-
-# setting node configs
-# stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
-# Align depth map to the perspective of RGB camera, on which inference is done
-stereo.initialConfig.setConfidenceThreshold(230)
-stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
-stereo.setOutputSize(monoLeft.getResolutionWidth(), monoLeft.getResolutionHeight())
-
 # Options: MEDIAN_OFF, KERNEL_3x3, KERNEL_5x5, KERNEL_7x7 (default)
 stereo.initialConfig.setMedianFilter(dai.MedianFilter.KERNEL_7x7)
 stereo.setLeftRightCheck(True)
@@ -121,6 +101,19 @@ detectionNetwork.input.setBlocking(False)
 detectionNetwork.setDepthLowerThreshold(200)
 detectionNetwork.setDepthUpperThreshold(30000)
 
+# Properties
+camRgb.setPreviewSize(640, 352)
+camRgb.setResolution(dai.ColorCameraProperties.SensorResolution.THE_1080_P)
+camRgb.setInterleaved(False)
+camRgb.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+# camRgb.setImageOrientation(dai.CameraImageOrientation.ROTATE_180_DEG)
+camRgb.setFps(6)
+
+monoLeft.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
+monoLeft.setBoardSocket(dai.CameraBoardSocket.LEFT)
+monoRight.setResolution(dai.MonoCameraProperties.SensorResolution.THE_400_P)
+monoRight.setBoardSocket(dai.CameraBoardSocket.RIGHT)
+
 # Linking
 monoLeft.out.link(stereo.left)
 monoRight.out.link(stereo.right)
@@ -137,6 +130,12 @@ stereo.depth.link(detectionNetwork.inputDepth)
 detectionNetwork.passthroughDepth.link(xoutDepth.input)
 detectionNetwork.outNetwork.link(nnNetworkOut.input)
 
+# setting node configs
+# stereo.setDefaultProfilePreset(dai.node.StereoDepth.PresetMode.HIGH_DENSITY)
+# Align depth map to the perspective of RGB camera, on which inference is done
+stereo.initialConfig.setConfidenceThreshold(255)
+stereo.setDepthAlign(dai.CameraBoardSocket.RGB)
+stereo.setOutputSize(monoLeft.getResolutionWidth(), monoLeft.getResolutionHeight())
 
 # Connect to device and start pipeline
 with dai.Device(pipeline) as device:
